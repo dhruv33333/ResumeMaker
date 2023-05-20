@@ -25,9 +25,30 @@ router.post("/register", async (req, res) => {
     confirmPassword,
   });
 
-  res.status(200).json({ user, status: "ok" });
+  res.status(200).json({ status: "ok" });
 });
 
-router.post("/login", (req, res) => {});
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ error: "Please enter all credentials!", status: "error" });
+  }
+
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return res
+      .status(400)
+      .json({ error: "Account does not exist!", status: "error" });
+  }
+
+  if (user.password !== password) {
+    return res.status(400).json({ error: "Wrong password!", status: "error" });
+  }
+
+  res.status(200).json({ data: user, status: "ok" });
+});
 
 module.exports = router;
